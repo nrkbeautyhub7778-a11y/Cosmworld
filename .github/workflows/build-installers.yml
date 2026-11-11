@@ -1,0 +1,50 @@
+name: Build Android APK and Windows installer
+
+on:
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Verify Android wrapper
+        run: test -f android-wrapper/package.json
+      - name: Build Android APK
+        working-directory: android-wrapper
+        run: |
+          npm ci
+          npx cap sync android
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nrk-beauty-hub-android-apk
+          path: android-wrapper/android/app/build/outputs/apk/debug/app-debug.apk
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Verify desktop wrapper
+        run: if (!(Test-Path desktop-wrapper/package.json)) { throw "desktop-wrapper/package.json is missing" }
+      - name: Build Windows installer
+        working-directory: desktop-wrapper
+        run: |
+          npm ci
+          npm run dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nrk-beauty-hub-windows-installer
+          path: desktop-wrapper/dist/*.exe
