@@ -1,0 +1,9 @@
+{
+  "appId": "com.nrkbeautyhub.accounting",
+  "appName": "NRK Beauty Hub",
+  "webDir": "www",
+  "server": {
+    "url": "https://nrk-business-accounting.vercel.app",
+    "cleartext": false
+  }
+}
