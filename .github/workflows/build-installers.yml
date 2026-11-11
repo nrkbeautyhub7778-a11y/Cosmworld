@@ -15,12 +15,13 @@ jobs:
         with:
           distribution: temurin
           java-version: "17"
-      - name: Verify Android wrapper
-        run: test -f android-wrapper/package.json
-      - name: Build Android APK
+      - name: Install Android wrapper dependencies
+        working-directory: android-wrapper
+        run: npm install
+      - name: Generate Android project and build APK
         working-directory: android-wrapper
         run: |
-          npm ci
+          npx cap add android
           npx cap sync android
           cd android
           chmod +x gradlew
@@ -37,13 +38,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Verify desktop wrapper
-        run: if (!(Test-Path desktop-wrapper/package.json)) { throw "desktop-wrapper/package.json is missing" }
+      - name: Install desktop wrapper dependencies
+        working-directory: desktop-wrapper
+        run: npm install
       - name: Build Windows installer
         working-directory: desktop-wrapper
-        run: |
-          npm ci
-          npm run dist
+        run: npm run dist
       - uses: actions/upload-artifact@v4
         with:
           name: nrk-beauty-hub-windows-installer
